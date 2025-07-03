@@ -11,7 +11,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class AuthTokensService {
+public class AuthTokenService {
 
 
     public String genAccessToken(Member member) {
