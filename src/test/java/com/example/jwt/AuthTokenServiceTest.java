@@ -43,7 +43,8 @@ public class AuthTokenServiceTest {
         // 토큰 시크릿 키 -> 도장 찍는 룰
         SecretKey secretKey = Keys.hmacShaKeyFor("abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890".getBytes());
 
-        String jwtStr = Ut.Jwt.createToken(secretKey, expireSeconds, Map.of("name", "john", "age", 23));
+        Map<String, Object> origin = Map.of("name", "john", "age", 23);
+        String jwtStr = Ut.Jwt.createToken(secretKey, expireSeconds,origin );
         assertThat(jwtStr).isNotBlank();
 
         Jwt<?,?> parsedJwt = Jwts
@@ -52,6 +53,9 @@ public class AuthTokenServiceTest {
                 .build()
                 .parse(jwtStr);
 
+        Map<String,Object> payload = (Map<String,Object>) parsedJwt.getPayload();
+
+        assertThat(payload).containsAllEntriesOf(origin);
 
     }
 
