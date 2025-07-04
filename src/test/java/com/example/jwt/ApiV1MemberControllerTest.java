@@ -3,6 +3,7 @@ package com.example.jwt;
 import com.example.jwt.domain.member.member.controller.ApiV1MemberController;
 import com.example.jwt.domain.member.member.entity.Member;
 import com.example.jwt.domain.member.member.service.MemberService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,15 @@ public class ApiV1MemberControllerTest {
 
     @Autowired
     private MemberService memberService;
+
+    private Member loginedMember;
+    private String token;
+
+    @BeforeEach//모든테스트 케이스에 한번씩 실행됨
+    void login() {
+        loginedMember =memberService.findByUsername("user1").get();
+        token = memberService.genAuthToken(loginedMember);
+    }
 
 
     private void checkMember(ResultActions resultActions, Member member) throws Exception {
@@ -172,8 +182,8 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.item.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.item.nickname").value(member.getNickname()))
-                .andExpect(jsonPath("$.data.item.createdDate").value(member.getCreatedDate().toString()))
-                .andExpect(jsonPath("$.data.item.modifiedDate").value(member.getModifiedDate().toString()))
+                .andExpect(jsonPath("$.data.item.createdDate").value(matchesPattern(member.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
+                .andExpect(jsonPath("$.data.item.modifiedDate").value(matchesPattern(member.getModifiedDate().toString().replaceAll("0+$", "") + ".*")))
                 .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()))
                 .andExpect(jsonPath("$.data.accessToken").exists());
 
@@ -266,10 +276,6 @@ public class ApiV1MemberControllerTest {
     @DisplayName("내 정보 조회")
     void me1() throws Exception {
 
-        //String apiKey = "user1";
-
-        String token = "eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ1c2VyMSIsImlhdCI6MTczOTE1NDgxMCwiZXhwIjoxNzcwNjkwODEwfQ.beGeXX5LpK3cervVouA_5AMx6YfcfpU7umrZ7xkCrsDzdeUJUiW4h8nd8jJe7WXFSs7ZpFuS7zEalKr4gnB6YQ";
-
         ResultActions resultActions = meRequest(token);
 
         resultActions
@@ -279,8 +285,7 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.code").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("내 정보 조회가 완료되었습니다."));
 
-//        Member member = memberService.findByApiKey(apiKey).get();
-//        checkMember(resultActions, member);
+        checkMember(resultActions, loginedMember);
 
     }
 

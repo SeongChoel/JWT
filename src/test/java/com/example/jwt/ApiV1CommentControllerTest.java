@@ -1,9 +1,12 @@
 package com.example.jwt;
 
+import com.example.jwt.domain.member.member.entity.Member;
+import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.domain.post.comment.controller.ApiV1CommentController;
 import com.example.jwt.domain.post.comment.entity.Comment;
 import com.example.jwt.domain.post.post.entity.Post;
 import com.example.jwt.domain.post.post.service.PostService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,18 +36,30 @@ public class ApiV1CommentControllerTest {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private MemberService memberService;
+
+    private Member loginedMember;
+    private String token;
+
+    @BeforeEach
+//모든테스트 케이스에 한번씩 실행됨
+    void login() {
+        loginedMember =memberService.findByUsername("user1").get();
+        token = memberService.genAuthToken(loginedMember);
+    }
+
     @Test
     @DisplayName("댓글 작성")
     void write() throws Exception {
 
         long postId = 1;
-        String apiKey = "user1";
         String content = "댓글 내용";
 
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts/%d/comments".formatted(postId))
-                                .header("Authorization", "Bearer " + apiKey)
+                                .header("Authorization", "Bearer " + token)
                                 .content("""
                                         {
                                             "content": "%s"
@@ -75,13 +90,12 @@ public class ApiV1CommentControllerTest {
 
         long postId = 1;
         long commentId = 1;
-        String apiKey = "user1";
         String content = "댓글 내용";
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/%d/comments/%d".formatted(postId, commentId))
-                                .header("Authorization", "Bearer " + apiKey)
+                                .header("Authorization", "Bearer " + token)
                                 .content("""
                                         {
                                             "content": "%s"
@@ -109,12 +123,11 @@ public class ApiV1CommentControllerTest {
 
         long postId = 1;
         long commentId = 1;
-        String apiKey = "user1";
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/%d/comments/%d".formatted(postId, commentId))
-                                .header("Authorization", "Bearer " + apiKey)
+                                .header("Authorization", "Bearer " + token)
                 )
                 .andDo(print());
 
