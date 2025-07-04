@@ -41,7 +41,7 @@ public class ApiV1MemberController {
 
     record LoginReqBody(@NotBlank String username, @NotBlank String password) {}
 
-    record LoginResBody(MemberDto item, String apiKey) {}
+    record LoginResBody(MemberDto item, String apiKey, String accessToken) {}
 
     @PostMapping("/login")
     public RsData<LoginResBody> login(@RequestBody @Valid LoginReqBody reqBody) {
@@ -49,6 +49,8 @@ public class ApiV1MemberController {
         Member member = memberService.findByUsername(reqBody.username()).orElseThrow(
                 () -> new ServiceException("401-1", "잘못된 아이디입니다.")
         );
+
+        String authToken = memberService.genAuthToken(member);
 
         if(!member.getPassword().equals(reqBody.password())) {
             throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
@@ -59,7 +61,8 @@ public class ApiV1MemberController {
                 "%s님 환영합니다.".formatted(member.getNickname()),
                 new LoginResBody(
                         new MemberDto(member),
-                        member.getApiKey()
+                        member.getApiKey(),
+                        authToken
                 )
         );
     }
