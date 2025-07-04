@@ -71,7 +71,7 @@ public class AuthTokenServiceTest {
         boolean isValid = Ut.Jwt.isValidToken(secretKey, accessToken);
         assertThat(isValid).isTrue();
 
-        Map<String,Object> parsedPayload = Ut.Jwt.getPayload(secretKey, accessToken);
+        Map<String,Object> parsedPayload = authTokenService.getPayload(secretKey, accessToken);
         assertThat(parsedPayload).containsAllEntriesOf(
                 Map.of("id", member.getId(), "username", member.getUsername())
         );
