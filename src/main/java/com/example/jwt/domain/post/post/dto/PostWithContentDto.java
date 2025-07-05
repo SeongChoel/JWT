@@ -25,7 +25,7 @@ public class PostWithContentDto {
         this.title = post.getTitle();
         this.content = post.getContent();
         this.authorId = post.getAuthor().getId();
-        this.authorName = post.getAuthor().getNickname();
+        this.authorName = post.getAuthor().getUsername();
         this.published = post.isPublished();
         this.listed = post.isListed();
     }
