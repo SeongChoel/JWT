@@ -50,7 +50,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         }
 
         Member actor = opMember.get();
-        rq.setLogin(actor.getUsername()); //user2가 로그인 했는데 user1로 로그인 처리됨
+        rq.setLogin(actor);
 
         filterChain.doFilter(request, response);
 
