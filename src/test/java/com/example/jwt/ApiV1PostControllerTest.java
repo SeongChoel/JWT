@@ -77,7 +77,7 @@ public class ApiV1PostControllerTest {
                     .andExpect(jsonPath("$.data.items[%d].title".formatted(i)).value(post.getTitle()))
                     .andExpect(jsonPath("$.data.items[%d].content".formatted(i)).doesNotExist())
                     .andExpect(jsonPath("$.data.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
-                    .andExpect(jsonPath("$.data.items[%d].authorName".formatted(i)).value(post.getAuthor().getNickname()))
+                    .andExpect(jsonPath("$.data.items[%d].authorName".formatted(i)).value(post.getAuthor().getUsername()))
                     .andExpect(jsonPath("$.data.items[%d].published".formatted(i)).value(post.isPublished()))
                     .andExpect(jsonPath("$.data.items[%d].listed".formatted(i)).value(post.isListed()))
                     .andExpect(jsonPath("$.data.items[%d].createdDate".formatted(i)).value(matchesPattern(post.getCreatedDate().toString().replaceAll("0+$", "") + ".*")))
