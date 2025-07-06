@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -542,10 +543,13 @@ public class ApiV1PostControllerTest {
 
 
     @Test
-    @DisplayName("통계")
-    void statistics() throws Exception {
+    @DisplayName("통계 - 관리자 기능 - 관리자 접근")
+    @WithUserDetails("admin") //토큰가져오는거 귀찮아서 이걸로함 테스트만
+    void statisticsAdmin() throws Exception {
+
         ResultActions resultActions = mvc.perform(
                 get("/api/v1/posts/statistics")
+
         )
                 .andDo(print());
 
@@ -558,5 +562,23 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.data.postCount").value(10))
                 .andExpect(jsonPath("$.data.postPublishedCount").value(10))
                 .andExpect(jsonPath("$.data.postListedCount").value(10));
+    }
+
+    @Test
+    @DisplayName("통계 - 관리자 기능 - user1 접근")
+    @WithUserDetails("user1") //토큰가져오는거 귀찮아서 이걸로함 테스트만
+    void statisticsUser() throws Exception {
+        ResultActions resultActions = mvc.perform(
+                        get("/api/v1/posts/statistics")
+
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(status().isForbidden())
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("getStatistics"))
+                .andExpect(jsonPath("$.code").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("접근 권한이 없습니다."));
     }
 }
