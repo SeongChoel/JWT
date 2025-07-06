@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
@@ -25,7 +23,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
         SecurityUser user = new SecurityUser(member.getId(),member.getUsername(),
                 member.getPassword(),
-                List.of());
+                member.getAuthorities());
 
         return user;
     }
