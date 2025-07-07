@@ -6,7 +6,6 @@ import com.example.jwt.domain.member.member.service.MemberService;
 import com.example.jwt.global.Rq;
 import com.example.jwt.global.dto.RsData;
 import com.example.jwt.global.exception.ServiceException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -53,24 +52,14 @@ public class ApiV1MemberController {
                 () -> new ServiceException("401-1", "잘못된 아이디입니다.")
         );
 
-        String authToken = memberService.genAuthToken(member);
-
         if(!member.getPassword().equals(reqBody.password())) {
             throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
         }
 
         String accessToken = memberService.genAccessToken(member);
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
 
-        //쿠키에대한 보안 설정
-        accessTokenCookie.setDomain("localhost");
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setAttribute("SameSite", "Strict");
-
-        response.addCookie(accessTokenCookie); //쿠키 정보를 헤더에 추가
-
+        rq.addCookie("accessToken", accessToken);
+        rq.addCookie("apiKey", member.getApiKey());
 
         return new RsData<>(
                 "200-1",
