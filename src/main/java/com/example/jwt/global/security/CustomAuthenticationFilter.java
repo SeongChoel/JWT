@@ -45,17 +45,33 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String apikey = tokenBits[0];
         String accessToken = tokenBits[1];
 
+        //여기서 터짐 왜냐하면 만료된 인증키니까
+        Optional<Member> opAccMember = memberService.getMemberByAccessToken(accessToken);
 
+        if(opAccMember.isEmpty()) {
 
-        Optional<Member> opMember = memberService.getMemberByAccessToken(accessToken);
+            //재발급 로직
+            Optional<Member> opApiMember = memberService.findByApiKey(apikey);
 
+            //만약 API 비어있으면 , 막 재발급을 해주면 안된다
+            if(opApiMember.isEmpty()) {
+                filterChain.doFilter(request, response); // 시큐리티가 처리함
+                return;
+            }
 
-        if(opMember.isEmpty()) {
+            //API 키로 회원을 찾았으니, 재발급
+            String newAuthToken =memberService.genAuthToken(opApiMember.get());
+            response.addHeader("Authorization", "Bearer " + newAuthToken);
+
+            //로그인 정보 설정
+            Member actor = opApiMember.get();
+            rq.setLogin(actor);
+
             filterChain.doFilter(request, response); // 시큐리티가 처리함
             return;
         }
 
-        Member actor = opMember.get();
+        Member actor = opAccMember.get();
         rq.setLogin(actor);
 
         filterChain.doFilter(request, response);
