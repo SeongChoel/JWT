@@ -78,7 +78,7 @@ public class ApiV1MemberController {
                 new LoginResBody(
                         new MemberDto(member),
                         member.getApiKey(),
-                        authToken
+                        accessToken
                 )
         );
     }
