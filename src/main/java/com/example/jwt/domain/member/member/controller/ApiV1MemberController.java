@@ -61,7 +61,16 @@ public class ApiV1MemberController {
 
         String accessToken = memberService.genAccessToken(member);
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+
+        //쿠키에대한 보안 설정
+        accessTokenCookie.setDomain("localhost");
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setSecure(true);
+        accessTokenCookie.setAttribute("SameSite", "Strict");
+
         response.addCookie(accessTokenCookie); //쿠키 정보를 헤더에 추가
+
 
         return new RsData<>(
                 "200-1",
