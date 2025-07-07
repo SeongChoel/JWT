@@ -313,6 +313,7 @@ public class ApiV1MemberControllerTest {
 
         String apikey = loginedMember.getApiKey();
         String expiredToken = apikey + " eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MywidXNlcm5hbWUiOiJ1c2VyMSIsImlhdCI6MTc1MTg0OTQwOCwiZXhwIjoxNzUxODQ5NDEzfQ.2d7Wc8EacvxJAg4DJdNtRdcPIU2YxGIOhcgiUxvXDzAcQdXhIPD7rz5_4F5VoYYXIlyUkiL7F3ZEDtIacboaKw";
+        //String wrongToken = apikey + " aa";
 
         ResultActions resultActions = meRequest(expiredToken);
 
