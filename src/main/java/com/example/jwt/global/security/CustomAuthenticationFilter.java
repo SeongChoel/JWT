@@ -20,22 +20,24 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     private final Rq rq;
     private final MemberService memberService;
+
     private boolean isAuthorizationHeader() {
 
         String authorizationHeader = rq.getHeader("Authorization");
 
-        if(authorizationHeader == null) {
+        if (authorizationHeader == null) {
             return false;
         }
 
-        if(!authorizationHeader.startsWith("Bearer ")) {
+        if (!authorizationHeader.startsWith("Bearer ")) {
             return false;
         }
 
         return true;
     }
 
-    record AuthToken(String apiKey, String accessToken) {}
+    record AuthToken(String apiKey, String accessToken) {
+    }
 
     private AuthToken getAuthTokenFromRequest() {
 
@@ -64,25 +66,25 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-    private Member refreshAccessToken(String accessToken, String apiKey) {
+    private Member getMemberByAccessToken(String accessToken, String apiKey) {
 
         Optional<Member> opAccMember = memberService.getMemberByAccessToken(accessToken);
 
-        if (opAccMember.isEmpty()) {
-            Optional<Member> opRefMember = memberService.findByApiKey(apiKey);
-
-            if (opRefMember.isEmpty()) {
-                return null;
-            }
-
-            String newAccessToken = memberService.genAccessToken(opRefMember.get());
-            rq.setHeader("Authorization", "Bearer " + newAccessToken);
-            rq.addCookie("accessToken", newAccessToken);
-
-            return opRefMember.get();
+        if (opAccMember.isPresent()) {
+            return opAccMember.get();
         }
 
-        return opAccMember.get();
+        Optional<Member> opRefMember = memberService.findByApiKey(apiKey);
+
+        if (opRefMember.isEmpty()) {
+            return null;
+        }
+
+        String newAccessToken = memberService.genAccessToken(opRefMember.get());
+        rq.setHeader("Authorization", "Bearer " + newAccessToken);
+        rq.addCookie("accessToken", newAccessToken);
+
+        return opRefMember.get();
     }
 
     @Override
@@ -99,7 +101,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = tokens.accessToken;
 
         // 재발급 코드
-        Member actor = refreshAccessToken(accessToken, apiKey);
+        Member actor = getMemberByAccessToken(accessToken, apiKey);
         if (actor == null) {
             filterChain.doFilter(request, response);
             return;
